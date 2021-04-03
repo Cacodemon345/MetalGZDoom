@@ -87,6 +87,13 @@ void MetalFrameBuffer::BeginFrame()
             {
             if (MLRenderer->mScreenBuffers)
             {
+				if (MLRenderer->mScreenBuffers->mSceneFB.width != this->GetClientWidth()
+					|| MLRenderer->mScreenBuffers->mSceneFB.height != this->GetClientHeight())
+				{
+					while (MLRenderer->mScreenBuffers->mSceneFB.retainCount)
+						[MLRenderer->mScreenBuffers->mSceneFB release];
+					MLRenderer->mScreenBuffers->mSceneFB = nil;
+				}
                 if (MLRenderer->mScreenBuffers->mSceneFB == nil)
                 {
                     MTLTextureDescriptor *desc = [MTLTextureDescriptor new];

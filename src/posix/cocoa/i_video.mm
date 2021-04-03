@@ -428,14 +428,13 @@ public:
 		else
 #endif
 		{
-            if (fb == nullptr)
-                fb = new MetalRenderer::MetalFrameBuffer(nullptr, fullscreen);
             const NSRect rect = [ms_window contentRectForFrameRect:[ms_window frame]];
             MetalRenderer::m_view = [[MetalCocoaView alloc] initWithFrame:rect device:MetalRenderer::device vsync:vid_vsync Str:@"NewView"];
             [ms_window setContentView:(NSView*)MetalRenderer::m_view];
             [ms_window setDelegate:(MetalCocoaView*)MetalRenderer::m_view];
             metalView = MetalRenderer::m_view;
-        
+			if (fb == nullptr)
+				fb = new MetalRenderer::MetalFrameBuffer(nullptr, fullscreen);
             //SetupOpenGLView(ms_window);
 		}
 
@@ -563,14 +562,14 @@ int SystemBaseFrameBuffer::GetTitleBarHeight() const
 
 int SystemBaseFrameBuffer::GetClientWidth()
 {
-    return 1440;
+    //return 1440;
     const int clientWidth = I_GetContentViewSize(m_window).width;
 	return clientWidth > 0 ? clientWidth : GetWidth();
 }
 
 int SystemBaseFrameBuffer::GetClientHeight()
 {
-    return 900;
+    //return 900;
     const int clientHeight = I_GetContentViewSize(m_window).height;
 	return clientHeight > 0 ? clientHeight : GetHeight();
 }
@@ -644,9 +643,13 @@ void SystemBaseFrameBuffer::SetMode(const bool fullscreen, const bool hiDPI)
 	{
 		[m_window makeKeyAndOrderFront:nil];
 	}
-
+	
 	m_fullscreen = fullscreen;
 	m_hiDPI      = hiDPI;
+	if (MetalRenderer::m_view)
+	{
+		[MetalRenderer::m_view.layer setDrawableSize:I_GetContentViewSize(m_window)];
+	}
 }
 
 

@@ -55,8 +55,8 @@
     metalLayer.framebufferOnly = YES; //todo: optimized way
     metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
     metalLayer.wantsExtendedDynamicRangeContent = false;
-    //metalLayer.drawableSize = CGSizeMake(self.frame.size.width, self.frame.size.height);
-    metalLayer.drawableSize = CGSizeMake(1440, 900);
+    metalLayer.drawableSize = CGSizeMake(self.frame.size.width * self.window.backingScaleFactor, self.frame.size.height * self.window.backingScaleFactor);
+    //metalLayer.drawableSize = CGSizeMake(1440, 900);
     metalLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
     metalLayer.colorspace = CGColorSpaceCreateWithName(kCGColorSpaceDisplayP3); // TEMPORARY
     if (@available(macOS 10.13, *)) {
@@ -71,6 +71,7 @@
                                                                    owner:self userInfo:nil] autorelease];
     [self addTrackingArea:trackingArea];
     [self setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
+	[self setLayerContentsRedrawPolicy:NSViewLayerContentsRedrawDuringViewResize];
     
     return self;
 }
@@ -83,6 +84,20 @@
 -(CAMetalLayer *)getMetalLayer
 {
     return metalLayer;
+}
+
+-(void)setMetalLayerDrawableSize:(CGRect) rect
+{
+	rect.size.width *= [metalLayer contentsScale];
+	rect.size.height *= [metalLayer contentsScale];
+	[metalLayer setDrawableSize:[self convertSizeToBacking:rect.size]];
+}
+
+-(void)viewDidEndLiveResize
+{
+	[super viewDidEndLiveResize];
+	auto rect = [metalLayer bounds];
+	[self setMetalLayerDrawableSize:rect];
 }
 
 @end
